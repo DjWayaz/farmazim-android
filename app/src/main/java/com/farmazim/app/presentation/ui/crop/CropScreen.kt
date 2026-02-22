@@ -31,10 +31,8 @@ fun CropScreen(
     var showAddPlotDialog by remember { mutableStateOf(false) }
     var showAddCropDialog by remember { mutableStateOf<Plot?>(null) }
 
-    uiState.error?.let { error ->
-        LaunchedEffect(error) {
-            viewModel.clearError()
-        }
+    uiState.error?.let {
+        LaunchedEffect(it) { viewModel.clearError() }
     }
 
     Scaffold(
@@ -47,29 +45,70 @@ fun CropScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = {
-                if (viewModel.canAddPlot()) showAddPlotDialog = true
-                else onUpgradeRequired()
-            }) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.button_add))
+            FloatingActionButton(
+                onClick = {
+                    if (viewModel.canAddPlot()) showAddPlotDialog = true
+                    else onUpgradeRequired()
+                },
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = stringResource(R.string.button_add),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
     ) { innerPadding ->
+        // Combine scaffold padding with bottom nav padding passed from NavGraph
+        val topPadding = innerPadding.calculateTopPadding()
+        val bottomPadding = maxOf(
+            innerPadding.calculateBottomPadding(),
+            contentPadding.calculateBottomPadding()
+        )
+
         if (uiState.plots.isEmpty()) {
             Box(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        top = topPadding,
+                        bottom = bottomPadding,
+                        start = 16.dp,
+                        end = 16.dp
+                    ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = stringResource(R.string.crop_empty_state),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        Icons.Default.Grass,
+                        contentDescription = null,
+                        modifier = Modifier.size(64.dp),
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        text = stringResource(R.string.crop_empty_state),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = "Tap the + button below to add your first plot",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
-                contentPadding = PaddingValues(16.dp),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    top = topPadding + 8.dp,
+                    bottom = bottomPadding + 80.dp, // extra space so FAB doesn't cover last item
+                    start = 16.dp,
+                    end = 16.dp
+                ),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(uiState.plots, key = { it.id }) { plot ->
@@ -119,23 +158,46 @@ fun PlotCard(
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Landscape, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                Icon(
+                    Icons.Default.Landscape,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
                 Spacer(Modifier.width(8.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(plot.name, style = MaterialTheme.typography.titleMedium)
                     Text("${plot.sizeHectares} ha", style = MaterialTheme.typography.bodySmall)
                 }
-                IconButton(onClick = onAddCrop) { Icon(Icons.Default.Add, "Add crop") }
-                IconButton(onClick = { expanded = !expanded }) {
-                    Icon(if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, "Toggle")
+                IconButton(onClick = onAddCrop) {
+                    Icon(Icons.Default.Add, contentDescription = "Add crop")
                 }
-                IconButton(onClick = onDeletePlot) { Icon(Icons.Default.Delete, "Delete", tint = MaterialTheme.colorScheme.error) }
+                IconButton(onClick = { expanded = !expanded }) {
+                    Icon(
+                        if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        contentDescription = "Toggle"
+                    )
+                }
+                IconButton(onClick = onDeletePlot) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
             }
             if (expanded && crops.isNotEmpty()) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 crops.forEach { crop ->
                     CropRow(crop = crop, onDelete = { onDeleteCrop(crop) })
                 }
+            }
+            if (expanded && crops.isEmpty()) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "No crops yet — tap + to add",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
             }
         }
     }
@@ -145,17 +207,39 @@ fun PlotCard(
 fun CropRow(crop: CropRecord, onDelete: () -> Unit) {
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(Icons.Default.Grass, null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(16.dp))
+        Icon(
+            Icons.Default.Grass,
+            null,
+            tint = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.size(16.dp)
+        )
         Spacer(Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(crop.cropType, style = MaterialTheme.typography.bodyMedium)
-            Text("Planted: ${dateFormat.format(Date(crop.plantedAt))}", style = MaterialTheme.typography.bodySmall)
-            crop.yieldKg?.let { Text("Yield: ${it}kg", style = MaterialTheme.typography.bodySmall) }
+            Text(
+                "Planted: ${dateFormat.format(Date(crop.plantedAt))}",
+                style = MaterialTheme.typography.bodySmall
+            )
+            crop.yieldKg?.let {
+                Text("Yield: ${it}kg", style = MaterialTheme.typography.bodySmall)
+            }
+            crop.saleAmountUsd?.let {
+                Text("Sale: \$$it", style = MaterialTheme.typography.bodySmall)
+            }
         }
-        IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, "Delete crop", modifier = Modifier.size(16.dp)) }
+        IconButton(onClick = onDelete) {
+            Icon(
+                Icons.Default.Delete,
+                contentDescription = "Delete crop",
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.error
+            )
+        }
     }
 }
 
@@ -168,23 +252,29 @@ fun AddPlotDialog(onDismiss: () -> Unit, onConfirm: (String, Double) -> Unit) {
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Plot") },
+        title = { Text("Add New Plot") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it; nameError = false },
                     label = { Text(stringResource(R.string.crop_plot_name_label)) },
+                    placeholder = { Text("e.g. North Field") },
                     isError = nameError,
-                    supportingText = if (nameError) ({ Text(stringResource(R.string.error_required_field)) }) else null,
+                    supportingText = if (nameError) ({
+                        Text(stringResource(R.string.error_required_field))
+                    }) else null,
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = size,
                     onValueChange = { size = it; sizeError = false },
                     label = { Text(stringResource(R.string.crop_plot_size_label)) },
+                    placeholder = { Text("e.g. 0.5") },
                     isError = sizeError,
-                    supportingText = if (sizeError) ({ Text(stringResource(R.string.error_invalid_number)) }) else null,
+                    supportingText = if (sizeError) ({
+                        Text(stringResource(R.string.error_invalid_number))
+                    }) else null,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -198,7 +288,9 @@ fun AddPlotDialog(onDismiss: () -> Unit, onConfirm: (String, Double) -> Unit) {
                 if (!nameError && !sizeError) onConfirm(name.trim(), sizeDouble!!)
             }) { Text(stringResource(R.string.button_save)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.button_cancel)) } }
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.button_cancel)) }
+        }
     )
 }
 
@@ -218,14 +310,18 @@ fun AddCropDialog(plot: Plot, onDismiss: () -> Unit, onConfirm: (CropRecord) -> 
                     value = cropType,
                     onValueChange = { cropType = it; cropTypeError = false },
                     label = { Text(stringResource(R.string.crop_type_label)) },
+                    placeholder = { Text("e.g. Maize, Soya, Groundnuts") },
                     isError = cropTypeError,
-                    supportingText = if (cropTypeError) ({ Text(stringResource(R.string.error_required_field)) }) else null,
+                    supportingText = if (cropTypeError) ({
+                        Text(stringResource(R.string.error_required_field))
+                    }) else null,
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = yieldKg,
                     onValueChange = { yieldKg = it },
                     label = { Text(stringResource(R.string.crop_yield_label)) },
+                    placeholder = { Text("e.g. 500") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -233,6 +329,7 @@ fun AddCropDialog(plot: Plot, onDismiss: () -> Unit, onConfirm: (CropRecord) -> 
                     value = saleAmount,
                     onValueChange = { saleAmount = it },
                     label = { Text(stringResource(R.string.crop_sale_amount_label)) },
+                    placeholder = { Text("e.g. 120.00") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -254,6 +351,8 @@ fun AddCropDialog(plot: Plot, onDismiss: () -> Unit, onConfirm: (CropRecord) -> 
                 }
             }) { Text(stringResource(R.string.button_save)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.button_cancel)) } }
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.button_cancel)) }
+        }
     )
 }
