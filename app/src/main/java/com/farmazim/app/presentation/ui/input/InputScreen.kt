@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.farmazim.app.R
@@ -38,65 +39,67 @@ fun InputScreen(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showAddDialog = true },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = stringResource(R.string.button_add),
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
         }
     ) { innerPadding ->
-        val topPadding = innerPadding.calculateTopPadding()
-        val bottomPadding = maxOf(
-            innerPadding.calculateBottomPadding(),
-            contentPadding.calculateBottomPadding()
-        )
-
-        if (uiState.inputs.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = topPadding, bottom = bottomPadding, start = 16.dp, end = 16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        Icons.Default.Science,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    Text(
-                        stringResource(R.string.input_empty_state),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        "Tap the + button below to record an input",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                top = innerPadding.calculateTopPadding() + 16.dp,
+                bottom = contentPadding.calculateBottomPadding() + 16.dp,
+                start = 16.dp,
+                end = 16.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Always-visible Add Input button at the top
+            item {
+                Button(
+                    onClick = { showAddDialog = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Record New Input")
                 }
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    top = topPadding + 8.dp,
-                    bottom = bottomPadding + 80.dp,
-                    start = 16.dp,
-                    end = 16.dp
-                ),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+
+            if (uiState.inputs.isEmpty()) {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                Icons.Default.Science,
+                                contentDescription = null,
+                                modifier = Modifier.size(56.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            Text(
+                                "No inputs recorded yet",
+                                style = MaterialTheme.typography.titleMedium,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(Modifier.height(4.dp))
+                            Text(
+                                "Track fertiliser, pesticides, seeds and labour costs",
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        }
+                    }
+                }
+            } else {
                 items(uiState.inputs, key = { it.id }) { input ->
                     InputCard(
                         input = input,
@@ -124,10 +127,7 @@ fun InputScreen(
 fun InputCard(input: InputRecord, plotName: String, onDelete: () -> Unit) {
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
     Card(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Default.Science, null, tint = MaterialTheme.colorScheme.secondary)
             Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
@@ -142,7 +142,7 @@ fun InputCard(input: InputRecord, plotName: String, onDelete: () -> Unit) {
                 )
             }
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, "Delete", tint = MaterialTheme.colorScheme.error)
+                Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.error)
             }
         }
     }
@@ -169,11 +169,14 @@ fun AddInputDialog(
         title = { Text(stringResource(R.string.input_add_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (plots.isNotEmpty()) {
-                    ExposedDropdownMenuBox(
-                        expanded = plotExpanded,
-                        onExpandedChange = { plotExpanded = it }
-                    ) {
+                if (plots.isEmpty()) {
+                    Text(
+                        "Please add a plot in the Crops tab first",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                } else {
+                    ExposedDropdownMenuBox(expanded = plotExpanded, onExpandedChange = { plotExpanded = it }) {
                         OutlinedTextField(
                             value = plots.find { it.id == selectedPlotId }?.name ?: "",
                             onValueChange = {},
@@ -182,10 +185,7 @@ fun AddInputDialog(
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(plotExpanded) },
                             modifier = Modifier.menuAnchor().fillMaxWidth()
                         )
-                        ExposedDropdownMenu(
-                            expanded = plotExpanded,
-                            onDismissRequest = { plotExpanded = false }
-                        ) {
+                        ExposedDropdownMenu(expanded = plotExpanded, onDismissRequest = { plotExpanded = false }) {
                             plots.forEach { plot ->
                                 DropdownMenuItem(
                                     text = { Text(plot.name) },
@@ -194,87 +194,69 @@ fun AddInputDialog(
                             }
                         }
                     }
-                } else {
-                    Text(
-                        "Add a plot first in the Crops tab",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
 
-                ExposedDropdownMenuBox(
-                    expanded = typeExpanded,
-                    onExpandedChange = { typeExpanded = it }
-                ) {
-                    OutlinedTextField(
-                        value = selectedType.name.lowercase().replaceFirstChar { it.uppercase() },
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text(stringResource(R.string.input_type_label)) },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(typeExpanded) },
-                        modifier = Modifier.menuAnchor().fillMaxWidth()
-                    )
-                    ExposedDropdownMenu(
-                        expanded = typeExpanded,
-                        onDismissRequest = { typeExpanded = false }
-                    ) {
-                        InputType.entries.forEach { type ->
-                            DropdownMenuItem(
-                                text = { Text(type.name.lowercase().replaceFirstChar { it.uppercase() }) },
-                                onClick = { selectedType = type; typeExpanded = false }
-                            )
+                    ExposedDropdownMenuBox(expanded = typeExpanded, onExpandedChange = { typeExpanded = it }) {
+                        OutlinedTextField(
+                            value = selectedType.name.lowercase().replaceFirstChar { it.uppercase() },
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text(stringResource(R.string.input_type_label)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(typeExpanded) },
+                            modifier = Modifier.menuAnchor().fillMaxWidth()
+                        )
+                        ExposedDropdownMenu(expanded = typeExpanded, onDismissRequest = { typeExpanded = false }) {
+                            InputType.entries.forEach { type ->
+                                DropdownMenuItem(
+                                    text = { Text(type.name.lowercase().replaceFirstChar { it.uppercase() }) },
+                                    onClick = { selectedType = type; typeExpanded = false }
+                                )
+                            }
                         }
                     }
-                }
 
-                OutlinedTextField(
-                    value = productName,
-                    onValueChange = { productName = it; productNameError = false },
-                    label = { Text(stringResource(R.string.input_product_name_label)) },
-                    placeholder = { Text("e.g. AN, Roundup, Seed Co") },
-                    isError = productNameError,
-                    supportingText = if (productNameError) ({
-                        Text(stringResource(R.string.error_required_field))
-                    }) else null,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = quantity,
-                    onValueChange = { quantity = it },
-                    label = { Text(stringResource(R.string.input_quantity_label)) },
-                    placeholder = { Text("e.g. 50") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = cost,
-                    onValueChange = { cost = it },
-                    label = { Text(stringResource(R.string.input_cost_label)) },
-                    placeholder = { Text("e.g. 25.00") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    OutlinedTextField(
+                        value = productName, onValueChange = { productName = it; productNameError = false },
+                        label = { Text(stringResource(R.string.input_product_name_label)) },
+                        placeholder = { Text("e.g. AN, Roundup, Seed Co") },
+                        isError = productNameError,
+                        supportingText = if (productNameError) ({ Text(stringResource(R.string.error_required_field)) }) else null,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = quantity, onValueChange = { quantity = it },
+                        label = { Text(stringResource(R.string.input_quantity_label)) },
+                        placeholder = { Text("e.g. 50") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = cost, onValueChange = { cost = it },
+                        label = { Text(stringResource(R.string.input_cost_label)) },
+                        placeholder = { Text("e.g. 25.00") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         },
         confirmButton = {
-            Button(onClick = {
-                productNameError = productName.isBlank()
-                if (!productNameError && plots.isNotEmpty()) {
-                    onConfirm(
-                        InputRecord(
+            Button(
+                onClick = {
+                    productNameError = productName.isBlank()
+                    if (!productNameError && plots.isNotEmpty()) {
+                        onConfirm(InputRecord(
                             plotId = selectedPlotId,
                             inputType = selectedType,
                             productName = productName.trim(),
                             quantityKg = quantity.toDoubleOrNull() ?: 0.0,
                             costUsd = cost.toDoubleOrNull() ?: 0.0,
                             appliedAt = System.currentTimeMillis()
-                        )
-                    )
-                }
-            }) { Text(stringResource(R.string.button_save)) }
+                        ))
+                    }
+                },
+                enabled = plots.isNotEmpty()
+            ) { Text(stringResource(R.string.button_save)) }
         },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.button_cancel)) }
-        }
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.button_cancel)) } }
     )
 }
