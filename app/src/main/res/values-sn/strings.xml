@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Shona translations (values-sn/strings.xml)
+    Translate each string value below. Do not change the name attributes.
+    Add this file to: app/src/main/res/values-sn/strings.xml
+-->
+<resources>
+    <string name="app_name">FarmaZim</string>
+    <string name="nav_crops">Mbesa</string>
+    <string name="nav_inputs">Zvinhu</string>
+    <string name="nav_livestock">Mhuka</string>
+    <string name="nav_finance">Mari</string>
+    <string name="nav_settings">Zvigadziriso</string>
+    <!-- TODO: Add remaining Shona translations -->
+</resources>

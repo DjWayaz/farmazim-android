@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Ndebele translations (values-nd/strings.xml)
+    Translate each string value below. Do not change the name attributes.
+    Add this file to: app/src/main/res/values-nd/strings.xml
+-->
+<resources>
+    <string name="app_name">FarmaZim</string>
+    <string name="nav_crops">Izilimo</string>
+    <string name="nav_inputs">Izinto</string>
+    <string name="nav_livestock">Izifuyo</string>
+    <string name="nav_finance">Imali</string>
+    <string name="nav_settings">Izilungiselelo</string>
+    <!-- TODO: Add remaining Ndebele translations -->
+</resources>

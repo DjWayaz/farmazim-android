@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FarmaZim</string>
+
+    <!-- Bottom Nav -->
+    <string name="nav_crops">Crops</string>
+    <string name="nav_inputs">Inputs</string>
+    <string name="nav_livestock">Livestock</string>
+    <string name="nav_finance">Finance</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Crops -->
+    <string name="crop_list_title">My Crops</string>
+    <string name="crop_add_title">Add Crop</string>
+    <string name="crop_edit_title">Edit Crop</string>
+    <string name="crop_type_label">Crop Type</string>
+    <string name="crop_plot_name_label">Plot Name</string>
+    <string name="crop_plot_size_label">Plot Size (hectares)</string>
+    <string name="crop_planted_date_label">Date Planted</string>
+    <string name="crop_harvested_date_label">Date Harvested</string>
+    <string name="crop_yield_label">Yield (kg)</string>
+    <string name="crop_sale_amount_label">Sale Amount (USD)</string>
+    <string name="crop_save_button">Save Crop</string>
+    <string name="crop_empty_state">No crops yet. Tap + to add your first crop.</string>
+    <string name="crop_free_limit_reached">Free plan allows up to 2 plots. Upgrade to add more.</string>
+
+    <!-- Inputs -->
+    <string name="input_list_title">Input Records</string>
+    <string name="input_add_title">Add Input</string>
+    <string name="input_type_label">Input Type</string>
+    <string name="input_product_name_label">Product Name</string>
+    <string name="input_quantity_label">Quantity (kg/L)</string>
+    <string name="input_cost_label">Cost (USD)</string>
+    <string name="input_date_label">Date Applied</string>
+    <string name="input_plot_label">Plot</string>
+    <string name="input_save_button">Save Input</string>
+    <string name="input_empty_state">No inputs recorded yet. Tap + to add.</string>
+    <string name="input_type_fertiliser">Fertiliser</string>
+    <string name="input_type_pesticide">Pesticide</string>
+    <string name="input_type_seed">Seed</string>
+    <string name="input_type_labour">Labour</string>
+    <string name="input_type_other">Other</string>
+
+    <!-- Livestock -->
+    <string name="livestock_list_title">My Livestock</string>
+    <string name="livestock_add_title">Add Livestock</string>
+    <string name="livestock_species_label">Species</string>
+    <string name="livestock_count_label">Number of Animals</string>
+    <string name="livestock_acquired_date_label">Date Acquired</string>
+    <string name="livestock_notes_label">Notes</string>
+    <string name="livestock_save_button">Save Livestock</string>
+    <string name="livestock_empty_state">No livestock recorded yet. Tap + to add.</string>
+    <string name="livestock_event_add_title">Add Health Event</string>
+    <string name="livestock_event_type_label">Event Type</string>
+    <string name="livestock_event_vaccination">Vaccination</string>
+    <string name="livestock_event_death">Death</string>
+    <string name="livestock_event_treatment">Treatment</string>
+    <string name="livestock_event_birth">Birth</string>
+    <string name="livestock_event_sale">Sale</string>
+    <string name="livestock_event_cost_label">Cost (USD)</string>
+
+    <!-- Finance -->
+    <string name="finance_title">Profit &amp; Loss</string>
+    <string name="finance_total_income">Total Income</string>
+    <string name="finance_total_expenses">Total Expenses</string>
+    <string name="finance_net_profit">Net Profit</string>
+    <string name="finance_season_label">Season</string>
+    <string name="finance_empty_state">No financial data yet. Start by recording crops and inputs.</string>
+
+    <!-- Paywall -->
+    <string name="paywall_title">Upgrade to Premium</string>
+    <string name="paywall_subtitle">Unlock unlimited plots, livestock tracking, and financial reports.</string>
+    <string name="paywall_feature_plots">✓ Unlimited plots</string>
+    <string name="paywall_feature_livestock">✓ Livestock management</string>
+    <string name="paywall_feature_finance">✓ Profit &amp; loss reports</string>
+    <string name="paywall_upgrade_button">Upgrade Now</string>
+    <string name="paywall_restore_button">Restore Purchase</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_pin_lock">PIN Lock</string>
+    <string name="settings_pin_enable">Enable PIN Lock</string>
+    <string name="settings_pin_set">Set PIN</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_about">About FarmaZim</string>
+    <string name="settings_version">Version</string>
+
+    <!-- Common -->
+    <string name="button_save">Save</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_delete">Delete</string>
+    <string name="button_edit">Edit</string>
+    <string name="button_add">Add</string>
+    <string name="confirm_delete_title">Delete Record</string>
+    <string name="confirm_delete_message">Are you sure you want to delete this record? This cannot be undone.</string>
+    <string name="error_generic">Something went wrong. Please try again.</string>
+    <string name="error_required_field">This field is required.</string>
+    <string name="error_invalid_number">Please enter a valid number.</string>
+    <string name="premium_badge">PREMIUM</string>
+</resources>
